@@ -9,6 +9,8 @@ module.exports = FlowCalculator;
  * http://en.wikipedia.org/wiki/Lucas%E2%80%93Kanade_method
  * Current implementation is not extremely tolerant to garbage collector.
  * This could be improved...
+ * 
+ * Step dictacts how much of a gradent we use per point
  */
 function FlowCalculator(step) {
     this.step = step || 8;
@@ -20,22 +22,30 @@ FlowCalculator.prototype.calculate = function (oldImage, newImage, width, height
     var winStep = step * 2 + 1;
 
     var A2, A1B2, B1, C1, C2;
-    var u, v, uu, vv;
-    uu = vv = 0;
+    var u, v, uu, vv, ww;
+    ww = uu = vv = 0;
     var wMax = width - step - 1;
     var hMax = height - step - 1;
     var globalY, globalX, localY, localX;
 
+    var centerX = wMax/2;
+    var centreY = hMax/2;
+
     for (globalY = step + 1; globalY < hMax; globalY += winStep) {
         for (globalX = step + 1; globalX < wMax; globalX += winStep) {
             A2 = A1B2 = B1 = C1 = C2 = 0;
-
+            
+            // We create a gradient of the current point
+            // Size of the gradient is dictated by step
             for (localY = -step; localY <= step; localY++) {
                 for (localX = -step; localX <= step; localX++) {
                     var address = (globalY + localY) * width + globalX + localX;
 
+                    // get the pixel next to +1x -1x +1y -1y
                     var gradX = (newImage[(address - 1) * 4]) - (newImage[(address + 1) * 4]);
                     var gradY = (newImage[(address - width) * 4]) - (newImage[(address + width) * 4]);
+                   
+                    // Get the previous value for this location (Time)
                     var gradT = (oldImage[address * 4]) - (newImage[address * 4]);
 
                     A2 += gradX * gradX;
@@ -70,11 +80,25 @@ FlowCalculator.prototype.calculate = function (oldImage, newImage, width, height
                 }
             }
 
+            // Calculate the if it's going towards the middle or going away from the middle
+            // for each point - is the line facing towards the center of the frame, or the inverse?
+            // once the know the vector what the speed away from the middle is the point moving
+            // middle is hMax and wMax
+            // added centerX
+            // added centreY
+
+            // what is the current distance from centre
+            var baseDistance = Math.sqrt(Math.pow(globalX-centerX,2)+Math.pow(globalY-centreY,2))
+            var newDistance = Math.sqrt(Math.pow(globalX+u-centerX,2)+Math.pow(globalY+v-centreY,2))
+            w = baseDistance-newDistance;
+
+
             if (-winStep < u && u < winStep &&
                 -winStep < v && v < winStep) {
                 uu += u;
                 vv += v;
-                zones.push(new FlowZone(globalX, globalY, u, v));
+                ww += w;
+                zones.push(new FlowZone(globalX, globalY, 0, u, v, w));
             }
         }
     }
@@ -82,6 +106,7 @@ FlowCalculator.prototype.calculate = function (oldImage, newImage, width, height
     return {
         zones : zones,
         u : uu / zones.length,
-        v : vv / zones.length
+        v : vv / zones.length,
+        w : ww / zones.length
     };
 };

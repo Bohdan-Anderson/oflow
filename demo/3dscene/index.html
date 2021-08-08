@@ -2,6 +2,9 @@
 <head>
     <title>Optical flow detection in JavaScript</title>
     <style type="text/css">
+    canvas{
+        background: #000;
+    }
     </style>
     <script type="text/javascript" src="../../dist/oflow.js"></script>
     <script type="text/javascript" src="colors.js"></script>
@@ -21,13 +24,20 @@
             ballSceneW = ballScene.width,
             ballSceneH = ballScene.height,
             ballX = ballSceneW / 2,
-            ballY = ballSceneH / 2;
+            ballY = ballSceneH / 2,
+            ballZ = 10,
+            ballxtd = document.getElementById("ballx"),
+            ballztd = document.getElementById("ballz"),
+            ballytd = document.getElementById("bally");
+            // fackingX = 0,
+            // fackingY = 0;
 
         ballCtx.fillStyle = '#bada55';
 
         webCamFlow.onCalculated( function (direciton) {
             // render zones
             // console.log(direciton)
+            var amplify = 1;
             sceneCtx.clearRect(0, 0, sceneWidth, sceneHeight);
             for(var i = 0; i < direciton.zones.length; ++i) {
                 var zone = direciton.zones[i];
@@ -35,7 +45,7 @@
                     sceneCtx.strokeStyle = getDirectionalColor(zone.u, zone.v);
                     sceneCtx.beginPath();
                     sceneCtx.moveTo(zone.x,zone.y);
-                    sceneCtx.lineTo((zone.x - zone.u), zone.y + zone.v);
+                    sceneCtx.lineTo((zone.x - (zone.u*amplify)), zone.y + (zone.v*amplify));
                     sceneCtx.stroke();
                 }
             }
@@ -44,32 +54,40 @@
             ballCtx.beginPath();
             ballX -= direciton.u * 5;
             ballY += direciton.v * 5;
-            if (ballX < 0) { ballX = 0; }
-            if (ballX > ballSceneW) { ballX = ballSceneW; }
-            if (ballY < 0) { ballY = 0; }
-            if (ballY > ballSceneH) { ballY = ballSceneH; }
+            ballZ += direciton.w;
+            ballxtd.innerText = parseInt(ballX) 
+            ballytd.innerText = parseInt(ballY)
+            ballztd.innerText = parseInt(ballZ)
+            if (ballX < 0) { ballX = ballSceneW; }
+            if (ballX > ballSceneW) { ballX = 0; }
+            if (ballY < 0) { ballY = ballSceneH; }
+            if (ballY > ballSceneH) { ballY = 0; }
+            // ballCtx.moveTo()
             ballCtx.arc(ballX, ballY, 10, 0, 2 * Math.PI, false);
             ballCtx.fillStyle = 'yellow';
             ballCtx.fill();
-            ballCtx.stroke(); 
+            ballCtx.stroke();
         });
 
         webCamFlow.startCapture();
     }
     </script>
 </head>
-<body onload="main()" style='background-color: black'>
-    <div style='float:left'>
+<body onload="main()">
+    <div >
         <video id='videoOut' width='320px' height='240px'></video><br />
         <canvas id='ballScene' width='320px' height='240px'></canvas>
     </div>
     <canvas id='scene' width='640px' height='480px'></canvas>
-
-<p style='color: white'>
+    <table>
+        <tr><th>Ball x</th><th>Ball y</th><th>Ball z</th></tr>
+        <tr><td id="ballx"></td><td id="bally"></td><td id="ballz"></td></tr>
+    </table>
+<p >
     Enable your webcamera when prompted (no worries I'm not sending your pictures anywhere :-) ).
     Move your hands slowly and gradually to control the ball.
 </p>
-<p style='color: #bada55'>
+<p >
     NOTE: The getUserMedia API is fairly new and might not work in your browser. If you don't see the
     picture of yourself - something is broken. And the browser did not call the error handler to let you know
     what's wrong.
