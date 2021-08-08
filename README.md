@@ -50,3 +50,8 @@ var flow = new oflow.VideoFlow(videoDomElement);
 ```
 
 ```videoDomElement``` is required argument.
+
+Additional Readings
+-----
+https://www.cs.cmu.edu/~kaess/vslam_cvpr14/media/VSLAM-Tutorial-CVPR14-A11-VisualOdometry.pdf
+http://www.cse.psu.edu/~rtc12/CSE486/lecture23.pdf

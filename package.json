@@ -13,7 +13,8 @@
   },
   "scripts": {
     "build": "browserify -s oflow src/main.js > dist/oflow.js",
-    "demo": "browserify demo/pingpong/src/main.js > demo/pingpong/build/bundle.js"
+    "demo": "browserify demo/pingpong/src/main.js > demo/pingpong/build/bundle.js",
+    "server": "node server.js"
   },
   "devDependencies": {
     "browserify": "^16.2.3"

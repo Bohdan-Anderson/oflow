@@ -67,46 +67,48 @@ function WebCamFlow(defaultVideoTag, zoneSize, cameraFacing, onFail) {
             });
         },
         initCapture = function() {
-        if (!videoFlow) {
-            videoTag = defaultVideoTag || window.document.createElement('video');
-            videoTag.setAttribute('autoplay', true);
-            videoFlow = new VideoFlow(videoTag, zoneSize);
-        }
+            if (!videoFlow) {
+                videoTag = defaultVideoTag || window.document.createElement('video');
+                videoTag.setAttribute('autoplay', true);
+                videoFlow = new VideoFlow(videoTag, zoneSize);
+            }
 
-        if (window.MediaStreamTrack.getSources) {
-            window.MediaStreamTrack.getSources(function(sourceInfos) {
-                for (var i = 0; i < sourceInfos.length; i++) {
-                    if (sourceInfos[i].kind === 'video' && confirm(sourceInfos[i])){
-                        selectedVideoSource = sourceInfos[i].id;
-                        // if camera facing requested direction is found, stop search
-                        if (sourceInfos[i].facing === cameraFacing) {
+            if (window.MediaStreamTrack.getSources) {
+                window.MediaStreamTrack.getSources(function(sourceInfos) {
+                    for (var i = 0; i < sourceInfos.length; i++) {
+                        if (sourceInfos[i].kind === 'video' && confirm(sourceInfos[i])){
+                            selectedVideoSource = sourceInfos[i].id;
+                            // if camera facing requested direction is found, stop search
+                            if (sourceInfos[i].facing === cameraFacing) {
+                                break;
+                            }
                             break;
                         }
                     }
-                }
 
-                desiredDevice = { optional: [{sourceId: selectedVideoSource}] };
-                navigator.mediaDevices.getUserMedia({ video: desiredDevice })
-                    .then(onWebCamSucceed)
-                    .catch(onWebCamFail);
-            });
-        } else if(navigator.mediaDevices.enumerateDevices) {
-            navigator.mediaDevices.enumerateDevices().then(
-                function(sourceInfos){
-                    for (var i = 0; i < sourceInfos.length; i++) {
-                        if(sourceInfos[i].kind == "videoinput" && confirm(sourceInfos[i].label)){
-                            selectedVideoSource = sourceInfos[i].deviceId;
-                        }
-                    }
-                    
                     desiredDevice = { optional: [{sourceId: selectedVideoSource}] };
                     navigator.mediaDevices.getUserMedia({ video: desiredDevice })
                         .then(onWebCamSucceed)
                         .catch(onWebCamFail);
-                }
-            );
+                });
+            } else if(navigator.mediaDevices.enumerateDevices) {
+                navigator.mediaDevices.enumerateDevices().then(
+                    function(sourceInfos){
+                        for (var i = 0; i < sourceInfos.length; i++) {
+                            if(sourceInfos[i].kind == "videoinput" && confirm(sourceInfos[i].label)){
+                                selectedVideoSource = sourceInfos[i].deviceId;
+                                break;
+                            }
+                        }
+                        
+                        desiredDevice = { optional: [{sourceId: selectedVideoSource}] };
+                        navigator.mediaDevices.getUserMedia({ video: desiredDevice })
+                            .then(onWebCamSucceed)
+                            .catch(onWebCamFail);
+                    }
+                );
+            }
         }
-    }
 
     // our public API
     this.startCapture = function () {
