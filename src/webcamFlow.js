@@ -76,7 +76,7 @@ function WebCamFlow(defaultVideoTag, zoneSize, cameraFacing, onFail) {
         if (window.MediaStreamTrack.getSources) {
             window.MediaStreamTrack.getSources(function(sourceInfos) {
                 for (var i = 0; i < sourceInfos.length; i++) {
-                    if (sourceInfos[i].kind === 'video'){
+                    if (sourceInfos[i].kind === 'video' && confirm(sourceInfos[i])){
                         selectedVideoSource = sourceInfos[i].id;
                         // if camera facing requested direction is found, stop search
                         if (sourceInfos[i].facing === cameraFacing) {
@@ -94,7 +94,7 @@ function WebCamFlow(defaultVideoTag, zoneSize, cameraFacing, onFail) {
             navigator.mediaDevices.enumerateDevices().then(
                 function(sourceInfos){
                     for (var i = 0; i < sourceInfos.length; i++) {
-                        if(sourceInfos[i].kind == "videoinput"){
+                        if(sourceInfos[i].kind == "videoinput" && confirm(sourceInfos[i].label)){
                             selectedVideoSource = sourceInfos[i].deviceId;
                         }
                     }

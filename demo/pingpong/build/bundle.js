@@ -862,6 +862,7 @@ function WebCamFlow(defaultVideoTag, zoneSize, cameraFacing, onFail) {
             window.MediaStreamTrack.getSources(function(sourceInfos) {
                 for (var i = 0; i < sourceInfos.length; i++) {
                     if (sourceInfos[i].kind === 'video'){
+                        console.log(sourceInfos)
                         selectedVideoSource = sourceInfos[i].id;
                         // if camera facing requested direction is found, stop search
                         if (sourceInfos[i].facing === cameraFacing) {

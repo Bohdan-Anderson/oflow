@@ -315,6 +315,7 @@ function VideoFlow(defaultVideoTag, zoneSize) {
 var VideoFlow = require('./videoFlow');
 module.exports = WebCamFlow;
 
+
 /**
  * A high level interface to capture optical flow from the web camera.
  * @param defaultVideoTag {DOMElement} optional reference to <video> tag
@@ -389,6 +390,7 @@ function WebCamFlow(defaultVideoTag, zoneSize, cameraFacing, onFail) {
             window.MediaStreamTrack.getSources(function(sourceInfos) {
                 for (var i = 0; i < sourceInfos.length; i++) {
                     if (sourceInfos[i].kind === 'video'){
+                        console.log(sourceInfos)
                         selectedVideoSource = sourceInfos[i].id;
                         // if camera facing requested direction is found, stop search
                         if (sourceInfos[i].facing === cameraFacing) {
@@ -406,7 +408,7 @@ function WebCamFlow(defaultVideoTag, zoneSize, cameraFacing, onFail) {
             navigator.mediaDevices.enumerateDevices().then(
                 function(sourceInfos){
                     for (var i = 0; i < sourceInfos.length; i++) {
-                        if(sourceInfos[i].kind == "videoinput"){
+                        if(sourceInfos[i].kind == "videoinput" && confirm(sourceInfos[i].label)){
                             selectedVideoSource = sourceInfos[i].deviceId;
                         }
                     }
